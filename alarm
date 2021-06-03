@@ -212,49 +212,76 @@ while true; do
 	read -N 1 selection
 
 	if [[ selection -eq 1 ]]; then
-		kill "$pidChild"
 		printFrontend
-		askDate
-		askMessage
-		sortedAlarmData="$({ cat ~/bin/alarmData; echo "${secondsGoal}^${message}"; } | sort -n -t '^' -k 1)" 
-		echo "$sortedAlarmData" > ~/bin/alarmData
-		alarmChild &
-		pidChild=$!
+		if [[ -e ~/tmp/alarmPipe ]]; then
+			echo -en "${RED_BACK}$spaces\r${NC}"
+			echo -en "${LIGHT_RED_BACK}You need to stop the alarm ${NC}"
+			sleep 3
+			echo -en "\033[2K\r"
+			printf "${BLUE_BACK}$spaces\r${NC}"
+			printf "${LIGHT_BLUE_BACK}%-24s${NC}" "Enter selection [1-4] > "
+		else
+			kill "$pidChild"
+			askDate
+			askMessage
+			sortedAlarmData="$({ cat ~/bin/alarmData; echo "${secondsGoal}^${message}"; } | sort -n -t '^' -k 1)" 
+			echo "$sortedAlarmData" > ~/bin/alarmData
+			alarmChild &
+			pidChild=$!
+		fi
 	elif [[ selection -eq 2 ]]; then
-		kill "$pidChild"
 		printFrontend
-		askId delete
-		sed -i "${id}s/.*//" ~/bin/alarmData
-		perl -p -i -e 's/^\n$//g' ~/bin/alarmData
-		alarmChild &
-		pidChild=$!
+		if [[ -e ~/tmp/alarmPipe ]]; then
+			echo -en "${RED_BACK}$spaces\r${NC}"
+			echo -en "${LIGHT_RED_BACK}You need to stop the alarm ${NC}"
+			sleep 3
+			echo -en "\033[2K\r"
+			printf "${BLUE_BACK}$spaces\r${NC}"
+			printf "${LIGHT_BLUE_BACK}%-24s${NC}" "Enter selection [1-4] > "
+		else
+			kill "$pidChild"
+			askId delete
+			sed -i "${id}s/.*//" ~/bin/alarmData
+			perl -p -i -e 's/^\n$//g' ~/bin/alarmData
+			alarmChild &
+			pidChild=$!
+		fi
 	elif [[ selection -eq 3 ]]; then
-		kill "$pidChild"
 		printFrontend
-		askId modify
-		while true; do
-			echo -en "${BLUE_BACK}$spaces\r${NC}"
-			read -p "$(echo -en "${LIGHT_BLUE_BACK}What do you want to modify? (date/message) ${BLUE_BACK}")" answer
-			echo -en "${NC}\033[T\033[2K\033[3J\r"
-			if [[ "$answer" == date ]]; then
-				askDate
-				sed -i "${id}s/[0-9]\+/$secondsGoal/" ~/bin/alarmData
-				sortedAlarmData="$(cat ~/bin/alarmData | sort -n -t '^' -k 1)"
-				echo "$sortedAlarmData" > ~/bin/alarmData
-				break
-			elif [[ "$answer" == message ]]; then
-				askMessage
-				sed -i "${id}s/\^.\+/^$message/" ~/bin/alarmData
-				break
-			else
-				echo -en "${RED_BACK}$spaces\r${NC}"
-				echo -en "${LIGHT_RED_BACK}Invalid entry${NC}"
-				sleep 3
-				echo -en "\033[2K\r"
-			fi
-		done
-		alarmChild &
-		pidChild=$!
+		if [[ -e ~/tmp/alarmPipe ]]; then
+			echo -en "${RED_BACK}$spaces\r${NC}"
+			echo -en "${LIGHT_RED_BACK}You need to stop the alarm ${NC}"
+			sleep 3
+			echo -en "\033[2K\r"
+			printf "${BLUE_BACK}$spaces\r${NC}"
+			printf "${LIGHT_BLUE_BACK}%-24s${NC}" "Enter selection [1-4] > "
+		else
+			kill "$pidChild"
+			askId modify
+			while true; do
+				echo -en "${BLUE_BACK}$spaces\r${NC}"
+				read -p "$(echo -en "${LIGHT_BLUE_BACK}What do you want to modify? (date/message) ${BLUE_BACK}")" answer
+				echo -en "${NC}\033[T\033[2K\033[3J\r"
+				if [[ "$answer" == date ]]; then
+					askDate
+					sed -i "${id}s/[0-9]\+/$secondsGoal/" ~/bin/alarmData
+					sortedAlarmData="$(cat ~/bin/alarmData | sort -n -t '^' -k 1)"
+					echo "$sortedAlarmData" > ~/bin/alarmData
+					break
+				elif [[ "$answer" == message ]]; then
+					askMessage
+					sed -i "${id}s/\^.\+/^$message/" ~/bin/alarmData
+					break
+				else
+					echo -en "${RED_BACK}$spaces\r${NC}"
+					echo -en "${LIGHT_RED_BACK}Invalid entry${NC}"
+					sleep 3
+					echo -en "\033[2K\r"
+				fi
+			done
+			alarmChild &
+			pidChild=$!
+		fi
 	elif [[ selection -eq 4 ]]; then
 		pidMusic="$(cat < ~/tmp/alarmPipe)"
 		kill "$pidMusic"
