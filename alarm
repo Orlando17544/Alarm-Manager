@@ -258,8 +258,9 @@ while true; do
 	elif [[ selection -eq 4 ]]; then
 		pidMusic="$(cat < ~/tmp/alarmPipe)"
 		kill "$pidMusic"
-		kill "$pidChild"
-		alarmChild &
-		pidChild=$!
+		printFrontend
+		#Print status line
+		printf "${BLUE_BACK}$spaces\r${NC}"
+		printf "${LIGHT_BLUE_BACK}%-24s${NC}" "Enter selection [1-4] > "
 	fi
 done
