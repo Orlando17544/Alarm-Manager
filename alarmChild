@@ -1,5 +1,20 @@
 #!/bin/bash
 
+# It is neccesary acpid
+
+if [[ "$(ps aux | grep -P acpi_listen | grep -Pv 'grep')" == "" ]]; then
+	systemctl start acpid.service
+	acpi_listen | grep -Pi 'headphone' > ~/tmp/headphonesStatus &
+fi
+
+playMusic () {
+	if [[ "$(cat ~/tmp/headphonesStatus | tail -n 1 | grep -P 'unplug')" != "" ]]; then
+		mpv ~/Música/bash/alarm.mp3 &> /dev/null &
+	else
+		mpv --volume 50 ~/Música/bash/alarm.mp3 &> /dev/null &
+	fi
+}
+
 UNDERLINE=`tput smul` 
 NOUNDERLINE=`tput rmul`
 BOLD=`tput bold`
@@ -118,12 +133,7 @@ while true; do
 	secondsGoal="$(echo "${alarmsMessagesArray[0]}" | cut -f 1 -d '^')"
 
 	if [[ "$secondsGoal" -le "$secondsCurrent" && "${#alarmsMessagesArray[@]}" -ne 0 ]]; then
-		# if headphones are unpluged (https://askubuntu.com/questions/133809/mute-sound-on-headphone-unplug)
-		if [[ "$(cat '/proc/asound/card0/codec#0' | head -n 140 | tail -n 1 | grep -Po 'OUT')" == "OUT" ]]; then
-			mpv ~/Música/bash/alarm.mp3 &> /dev/null &
-		else
-			mpv --volume 50 ~/Música/bash/alarm.mp3 &> /dev/null &
-		fi
+		playMusic
 		pidMusic=$!
 		if [[ ! -e ~/tmp/alarmPipe ]]; then
 			mkfifo ~/tmp/alarmPipe
