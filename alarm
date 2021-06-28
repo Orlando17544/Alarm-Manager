@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# It is neccesary acpid
+
+if [[ "$(ps aux | grep -P acpi_listen | grep -Pv 'grep')" == "" ]]; then
+	echo -n "" > ~/tmp/headphonesStatus
+	sudo systemctl start acpid.service
+	acpi_listen >> ~/tmp/headphonesStatus &
+fi
+
 UNDERLINE=`tput smul` 
 NOUNDERLINE=`tput rmul`
 BOLD=`tput bold`

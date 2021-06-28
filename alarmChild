@@ -1,13 +1,5 @@
 #!/bin/bash
 
-# It is neccesary acpid
-
-if [[ "$(ps aux | grep -P acpi_listen | grep -Pv 'grep')" == "" ]]; then
-	echo -n "" > ~/tmp/headphonesStatus
-	sudo systemctl start acpid.service
-	acpi_listen >> ~/tmp/headphonesStatus &
-fi
-
 playMusic () {
 	if [[ "$(cat ~/tmp/headphonesStatus | grep -P 'headphone' | tail -n 1 | grep -P 'unplug')" != "" ]]; then
 		mpv ~/Música/bash/alarm.mp3 &> /dev/null &
